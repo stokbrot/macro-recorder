@@ -45,8 +45,6 @@ public final class MacroEngine {
 	private int index;
 
 
-	// Add these two fields at the class level of your MacroEngine if they aren't there yet:
-	private long lastFrameTime = 0;
 	private int driftTicks = 0;
 
 	/** The frame the mixin should apply this tick, or null when playback is not driving input. */
@@ -188,26 +186,11 @@ public final class MacroEngine {
 			index = 0;
 		}
 
-		// 1. MICRO-TEMPORAL SHIFTING: Break the rigid 50ms delivery rhythm
-		long now = System.currentTimeMillis();
-		if (lastFrameTime != 0) {
-			long elapsed = now - lastFrameTime;
-			// Real human network packets fluctuate. Occasionally delay a frame execution
-			// by 1-3 milliseconds to mimic organic thread scheduling and network jitter.
-			long targetInterval = 50 + (java.util.concurrent.ThreadLocalRandom.current().nextInt(3) - 1); // 49ms to 51ms
-			if (elapsed < targetInterval) {
-				return; // Skip this client tick cycle and catch up on the next one
-			}
-		}
-		lastFrameTime = now;
-
 		PlayerFrame frame = frames.get(index);
 
-		// 2. HUMANIZED FAILSAFE RECOVERY: Avoid instant biological "dead silence"
+		// A short window absorbs normal server lag before the failsafe trips.
 		if (failsafeEnabled && hasDriftedOffPath(player)) {
 			driftTicks++;
-			// Give it a 3-tick window (150ms). Humans take time to notice a lag-back.
-			// This prevents false positives from server lag and looks organic if you stop.
 			if (driftTicks >= 3) {
 				mc.options.keyAttack.setDown(false);
 				mc.options.keyUse.setDown(false);
@@ -223,13 +206,9 @@ public final class MacroEngine {
 			driftTicks = 0; // Reset if we are back on track
 		}
 
-		// ROTATION JITTER: Adds unique float variations to break statistical signature matching
-		double jitterY = java.util.concurrent.ThreadLocalRandom.current().nextGaussian() * 0.00003;
-		double jitterX = java.util.concurrent.ThreadLocalRandom.current().nextGaussian() * 0.00003;
-
-		player.setYRot((float) (frame.yaw() + jitterY));
-		player.setXRot((float) (frame.pitch() + jitterX));
-		player.setYHeadRot((float) (frame.yaw() + jitterY));
+		player.setYRot(frame.yaw());
+		player.setXRot(frame.pitch());
+		player.setYHeadRot(frame.yaw());
 
 		// INVENTORY: Safe client-driven hotbar switching
 		if (frame.slot() >= 0 && frame.slot() < 9) {
