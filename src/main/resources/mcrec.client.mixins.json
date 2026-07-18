@@ -1,0 +1,15 @@
+{
+	"required": true,
+	"package": "mc.record.mixin.client",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"KeyboardInputMixin",
+		"LocalPlayerMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
