@@ -13,7 +13,7 @@ also this is a bunch of claude coede bc i never coded a mod/java so....
 - Configurable **failsafe distance** and **backtrack** to prevent desync or unwanted macro actions.  
 - Toggle failsafe strictness or ignore it entirely from the in-game UI.  
 
-### 🎲 Randomization (RDM)
+### 🎲 Randomization (RDM) (TODO)
 - Enable **random smoothing** between macro loops for more human-like movement.  
 
 ### 🖥️ In-Game GUI
